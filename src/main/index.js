@@ -1,6 +1,14 @@
 'use strict'
 
 import { app, BrowserWindow } from 'electron'
+/**
+ * In case if you enabled createSharedMutations() plugin you need to create an instance of store
+ * in the main process. To do it just add this line into your main process (for example src/main.js):
+ * https://github.com/vue-electron/vuex-electron#installation
+ * In renderer process to call actions you need to use dispatch or mapActions.
+ * Don't use commit because actions fired via commit will not be shared between processes.
+ */
+import '../renderer/store'
 
 /**
  * Set `__static` path to static files in production
