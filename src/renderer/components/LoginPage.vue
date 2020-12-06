@@ -69,6 +69,11 @@
               测试连接
             </button>
           </div>
+          <div class="control">
+            <button @click="loadAccount" class="button is-link is-success">
+              加载账号
+            </button>
+          </div>
         </div>
       </div>
     </main>
@@ -97,17 +102,17 @@
 
 <script>
 const JSFTP = require('jsftp')
-console.log(JSFTP)
 
 export default {
   name: 'login-page',
   data () {
     return {
-      host: '192.168.2.102',
-      port: 2121,
-      user: 'hello',
-      password: '1234',
+      host: '',
+      port: 21,
+      user: '',
+      password: '',
       save: false,
+      ftp: null,
 
       // 错误信息, '' 时不显示, null 时成功, 有值时失败
       error: '',
@@ -117,19 +122,28 @@ export default {
   methods: {
     connect: function (event) {
       console.log('正在登陆')
+
+      this.ftp = new JSFTP({
+        host: this.host,
+        port: this.port,
+        user: this.user,
+        pass: this.password
+      })
+
+      this.saveAccount()
     },
     connectTest: function (event) {
       console.log('尝试登陆')
       this.clear()
       this.process = true
 
-      let ftp = new JSFTP({
+      this.ftp = new JSFTP({
         host: this.host,
         port: this.port,
         user: this.user,
         pass: this.password
       })
-      ftp.ls('/', (err, res) => {
+      this.ftp.ls('/', (err, res) => {
         if (err) {
           console.log(err)
           this.error = err.stack
@@ -139,9 +153,35 @@ export default {
         }
         this.process = false
       })
+      // 捕捉错误
+      this.ftp.on('error', error => {
+        this.error = error.stack
+        this.process = false
+      })
+
+      // 保存账号数据
+      this.saveAccount()
     },
     clear: function (event) {
       this.error = ''
+    },
+    loadAccount: function (event) {
+      this.host = this.$store.state.Account.host
+      this.port = this.$store.state.Account.port
+      this.user = this.$store.state.Account.user
+      this.password = this.$store.state.Account.password
+    },
+    saveAccount: function (event) {
+      if (!this.save) return
+      this.$store.dispatch('Account/saveAccount', {
+        host: this.host,
+        port: this.port,
+        user: this.user,
+        password: this.password
+      })
+      this.$store.dispatch('Account/saveFTP', {
+        ftp: this.ftp
+      })
     }
   }
 }
