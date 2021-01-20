@@ -9,7 +9,7 @@
 - [Vuex](https://vuex.vuejs.org/zh/) Vue 的全局状态管理
 - [Vue Electron](https://github.com/vue-electron/vuex-electron#installation) 整合 electron 和 vuex
 - [jsftp](https://github.com/sergi/jsftp) FTP 客户端库
-- [bulma](https://bulma.zcopy.site/documentation/elements/progress/) CSS 框架
+- [bulma](https://bulma.io/documentation/) CSS 框架
 
 ## 构建
 

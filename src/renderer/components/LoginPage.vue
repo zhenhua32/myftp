@@ -131,6 +131,8 @@ export default {
       })
 
       this.saveAccount()
+      // 跳转到新页面
+      this.$router.push({ path: 'main' })
     },
     connectTest: function (event) {
       console.log('尝试登陆')
@@ -162,16 +164,16 @@ export default {
       // 保存账号数据
       this.saveAccount()
     },
-    clear: function (event) {
+    clear: function () {
       this.error = ''
     },
-    loadAccount: function (event) {
+    loadAccount: function () {
       this.host = this.$store.state.Account.host
       this.port = this.$store.state.Account.port
       this.user = this.$store.state.Account.user
       this.password = this.$store.state.Account.password
     },
-    saveAccount: function (event) {
+    saveAccount: function () {
       if (!this.save) return
       this.$store.dispatch('Account/saveAccount', {
         host: this.host,
