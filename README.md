@@ -1,8 +1,17 @@
 # myftp
 
-> An electron-vue project
+## 技术栈
 
-#### Build Setup
+- [Electron](https://www.electronjs.org/docs) 桌面客户端
+- [electron-vue](https://legacy.gitbook.com/book/simulatedgreg/electron-vue) 整合 electron 和 vue
+- [Vue](https://cn.vuejs.org/v2/guide/routing.html) 前端框架
+- [Vue Router](https://router.vuejs.org/zh/guide/#html) Vue 的路由组件
+- [Vuex](https://vuex.vuejs.org/zh/) Vue 的全局状态管理
+- [Vue Electron](https://github.com/vue-electron/vuex-electron#installation) 整合 electron 和 vuex
+- [jsftp](https://github.com/sergi/jsftp) FTP 客户端库
+- [bulma](https://bulma.zcopy.site/documentation/elements/progress/) CSS 框架
+
+## 构建
 
 ``` bash
 # install dependencies
