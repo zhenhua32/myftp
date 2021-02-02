@@ -1,6 +1,5 @@
 <template>
   <section class="container section">
-    <span @click="save">测试</span>
     <div>
       <span class="icon" title="主页" @click="getPaths('/')">
         <i class="fas fa-home"></i>
@@ -26,6 +25,7 @@
           <th>时间</th>
           <th>大小</th>
           <th>type</th>
+          <th>操作</th>
         </tr>
       </thead>
       <tfoot>
@@ -35,11 +35,12 @@
           <th>时间</th>
           <th>大小</th>
           <th>type</th>
+          <th>操作</th>
         </tr>
       </tfoot>
 
       <tbody>
-        <!-- 需要研究下 FTP 协议, 才能知道每个字段的意思 -->
+        <!-- TODO: 需要研究下 FTP 协议, 才能知道每个字段的意思 -->
         <tr
           v-for="(item, index) in names"
           :key="index"
@@ -50,6 +51,15 @@
           <td>{{ new Date(item.time) }}</td>
           <td>{{ formatBytes(item.size) }}</td>
           <td>{{ item.type === 1 ? '目录' : '文件' }}</td>
+          <td>
+            <button
+              v-if="item.type === 0"
+              class="button"
+              @click="save(item.name, curPath + item.name)"
+            >
+              下载
+            </button>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -61,6 +71,7 @@ const JSFTP = require('jsftp')
 const { dialog } = require('electron').remote
 const fs = require('fs')
 console.log(JSFTP)
+console.log(fs)
 export default {
   name: 'main-page',
   data () {
@@ -129,21 +140,46 @@ export default {
       )
     },
     // 下载文件
-    save: function () {
+    save: function (fileName, ftpPath) {
+      // fileName 是保存的文件的名字, ftpPath 是文件在 ftp 上的路径
       var options = {
         title: '保存文件',
-        defaultPath: 'my_filename',
+        defaultPath: fileName,
         buttonLabel: '保存',
-        filters: [
-          { name: 'txt', extensions: ['txt'] },
-          { name: 'All Files', extensions: ['*'] }
-        ]
+        filters: [{ name: 'All Files', extensions: ['*'] }]
       }
 
-      dialog.showSaveDialog(options, filename => {
-        console.log(filename)
-        if (filename) {
-          fs.writeFileSync(filename, 'hello world', 'utf-8')
+      dialog.showSaveDialog(options).then(res => {
+        console.log(res.canceled)
+        console.log(res.filePath)
+        console.log(ftpPath)
+        if (!res.canceled) {
+          var buf = Buffer.from([])
+          this.ftp.get(ftpPath, (err, socket) => {
+            if (err) {
+              return
+            }
+            socket.on('data', d => {
+              buf = Buffer.concat([buf, d])
+            })
+            socket.on('close', err => {
+              if (err) {
+                console.error('There was an error retrieving the file.')
+              } else {
+                fs.writeFileSync(res.filePath, buf)
+              }
+            })
+            socket.resume()
+          })
+          // TODO: 研究为什么不生效, bug 太多, 弃用
+          // this.ftp.get(ftpPath, res.filePath, err => {
+          //   console.log('hello')
+          //   if (err) {
+          //     console.log(err)
+          //     return console.error('无法保存文件')
+          //   }
+          //   console.log('文件保存成功')
+          // })
         }
       })
     }
