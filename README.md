@@ -7,7 +7,7 @@
 - [Vue](https://cn.vuejs.org/v2/guide/routing.html) 前端框架
 - [Vue Router](https://router.vuejs.org/zh/guide/#html) Vue 的路由组件
 - [Vuex](https://vuex.vuejs.org/zh/) Vue 的全局状态管理
-- [Vue Electron](https://github.com/vue-electron/vuex-electron#installation) 整合 electron 和 vuex
+- [Vuex Electron](https://github.com/vue-electron/vuex-electron#installation) 整合 electron 和 vuex
 - [jsftp](https://github.com/sergi/jsftp) FTP 客户端库
 - [bulma](https://bulma.io/documentation/) CSS 框架
 
