@@ -23,6 +23,7 @@ const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
 
+// 主进程通过创建 BrowserWindow 实例来创建网页
 function createWindow () {
   /**
    * Initial window options
@@ -30,9 +31,14 @@ function createWindow () {
   mainWindow = new BrowserWindow({
     height: 563,
     useContentSize: true,
-    width: 1000
+    width: 1000,
+    webPreferences: {
+      nodeIntegration: true
+    }
   })
-
+  // 窗口最大化
+  mainWindow.maximize()
+  // 加载需要显示的地址
   mainWindow.loadURL(winURL)
 
   mainWindow.on('closed', () => {
