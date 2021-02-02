@@ -8,8 +8,9 @@
 - [Vue Router](https://router.vuejs.org/zh/guide/#html) Vue 的路由组件
 - [Vuex](https://vuex.vuejs.org/zh/) Vue 的全局状态管理
 - [Vuex Electron](https://github.com/vue-electron/vuex-electron#installation) 整合 electron 和 vuex
-- [jsftp](https://github.com/sergi/jsftp) FTP 客户端库
+- [jsftp](https://github.com/sergi/jsftp) FTP 客户端库, bug 太多, 弃用
 - [bulma](https://bulma.io/documentation/) CSS 框架
+- [Basic FTP](https://github.com/patrickjuchli/basic-ftp#readme) FTP 客户端库
 
 ## 构建
 
