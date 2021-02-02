@@ -13,7 +13,14 @@
 
 ## 构建
 
-``` bash
+默认使用 yarn 吧.
+
+```bash
+# 添加库
+yarn add @fortawesome/fontawesome-free
+```
+
+```bash
 # install dependencies
 npm install
 

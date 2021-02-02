@@ -1,11 +1,8 @@
 <template>
   <section class="container section">
     <div>
-      <span class="icon-text">
-        <span class="icon">
-          <i class="fas fa-home"></i>
-        </span>
-        <span>Home</span>
+      <span class="icon" title="主页" @click="getPaths('/')">
+        <i class="fas fa-home"></i>
       </span>
       当前路径: <a title="/" @click="getPaths('/')">/</a>
       <template v-if="curPath !== '/'">
