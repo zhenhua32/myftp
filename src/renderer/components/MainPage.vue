@@ -1,128 +1,57 @@
 <template>
   <section class="container section">
-    <table class="table">
+    <div>
+      <span class="icon-text">
+        <span class="icon">
+          <i class="fas fa-home"></i>
+        </span>
+        <span>Home</span>
+      </span>
+      当前路径: <a title="/" @click="getPaths('/')">/</a>
+      <template v-if="curPath !== '/'">
+        <span
+          v-for="(item, index) in curPath.slice(1, -1).split('/')"
+          :key="index"
+        >
+          <a :title="buildPath(index)" @click="getPaths(buildPath(index))">{{
+            item
+          }}</a>
+          /
+        </span>
+      </template>
+    </div>
+    <table class="table is-striped is-hoverable">
       <thead>
         <tr>
           <th>index</th>
           <th>文件名</th>
+          <th>时间</th>
+          <th>大小</th>
+          <th>type</th>
         </tr>
       </thead>
       <tfoot>
         <tr>
           <th>index</th>
           <th>文件名</th>
+          <th>时间</th>
+          <th>大小</th>
+          <th>type</th>
         </tr>
       </tfoot>
+
       <tbody>
         <!-- 需要研究下 FTP 协议, 才能知道每个字段的意思 -->
-        <tr v-for="(item, index) in paths" :key="index">
+        <tr
+          v-for="(item, index) in names"
+          :key="index"
+          @click="item.type === 1 ? getPaths(curPath + item.name + '/') : {}"
+        >
           <th>{{ index }}</th>
           <td>{{ item.name }}</td>
-        </tr>
-        <tr>
-          <th>1</th>
-          <td>
-            <a
-              href="https://en.wikipedia.org/wiki/Leicester_City_F.C."
-              title="Leicester City F.C."
-              >Leicester City</a
-            >
-            <strong>(C)</strong>
-          </td>
-          <td>38</td>
-          <td>23</td>
-          <td>12</td>
-          <td>3</td>
-          <td>68</td>
-          <td>36</td>
-          <td>+32</td>
-          <td>81</td>
-          <td>
-            Qualification for the
-            <a
-              href="https://en.wikipedia.org/wiki/2016%E2%80%9317_UEFA_Champions_League#Group_stage"
-              title="2016–17 UEFA Champions League"
-              >Champions League group stage</a
-            >
-          </td>
-        </tr>
-        <tr>
-          <th>2</th>
-          <td>
-            <a
-              href="https://en.wikipedia.org/wiki/Arsenal_F.C."
-              title="Arsenal F.C."
-              >Arsenal</a
-            >
-          </td>
-          <td>38</td>
-          <td>20</td>
-          <td>11</td>
-          <td>7</td>
-          <td>65</td>
-          <td>36</td>
-          <td>+29</td>
-          <td>71</td>
-          <td>
-            Qualification for the
-            <a
-              href="https://en.wikipedia.org/wiki/2016%E2%80%9317_UEFA_Champions_League#Group_stage"
-              title="2016–17 UEFA Champions League"
-              >Champions League group stage</a
-            >
-          </td>
-        </tr>
-        <tr>
-          <th>3</th>
-          <td>
-            <a
-              href="https://en.wikipedia.org/wiki/Tottenham_Hotspur_F.C."
-              title="Tottenham Hotspur F.C."
-              >Tottenham Hotspur</a
-            >
-          </td>
-          <td>38</td>
-          <td>19</td>
-          <td>13</td>
-          <td>6</td>
-          <td>69</td>
-          <td>35</td>
-          <td>+34</td>
-          <td>70</td>
-          <td>
-            Qualification for the
-            <a
-              href="https://en.wikipedia.org/wiki/2016%E2%80%9317_UEFA_Champions_League#Group_stage"
-              title="2016–17 UEFA Champions League"
-              >Champions League group stage</a
-            >
-          </td>
-        </tr>
-        <tr class="is-selected">
-          <th>4</th>
-          <td>
-            <a
-              href="https://en.wikipedia.org/wiki/Manchester_City_F.C."
-              title="Manchester City F.C."
-              >Manchester City</a
-            >
-          </td>
-          <td>38</td>
-          <td>19</td>
-          <td>9</td>
-          <td>10</td>
-          <td>71</td>
-          <td>41</td>
-          <td>+30</td>
-          <td>66</td>
-          <td>
-            Qualification for the
-            <a
-              href="https://en.wikipedia.org/wiki/2016%E2%80%9317_UEFA_Champions_League#Play-off_round"
-              title="2016–17 UEFA Champions League"
-              >Champions League play-off round</a
-            >
-          </td>
+          <td>{{ new Date(item.time) }}</td>
+          <td>{{ formatBytes(item.size) }}</td>
+          <td>{{ item.type === 1 ? '目录' : '文件' }}</td>
         </tr>
       </tbody>
     </table>
@@ -137,19 +66,25 @@ export default {
   data () {
     return {
       ftp: null,
-      paths: []
+      names: [],
+      curPath: '/'
     }
   },
   methods: {
+    // 获取路径
     getPaths: function (filePath) {
       this.ftp.ls(filePath, (err, res) => {
         if (err) {
           console.log(err)
         } else {
           console.log(res)
-          this.paths = res
+          console.log(filePath)
+          // 更新当前路径
+          this.curPath = filePath
+          // 更新文件列表
+          this.names = res
           // 按字母排序
-          this.paths.sort(function (a, b) {
+          this.names.sort(function (a, b) {
             if (a.name < b.name) {
               return -1
             } else if (a.name > b.name) {
@@ -160,6 +95,7 @@ export default {
         }
       })
     },
+    // 连接 ftp 服务器
     connect: function () {
       this.ftp = new JSFTP({
         host: this.$store.state.Account.host,
@@ -167,6 +103,30 @@ export default {
         user: this.$store.state.Account.user,
         pass: this.$store.state.Account.password
       })
+    },
+    // 转换字节
+    formatBytes: function formatBytes (bytes, decimals = 2) {
+      if (bytes === 0) return '0 Bytes'
+
+      const k = 1024
+      const dm = decimals < 0 ? 0 : decimals
+      const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+
+      const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+    },
+    // 构建部分路径
+    buildPath: function (index) {
+      return (
+        '/' +
+        this.curPath
+          .slice(1, -1)
+          .split('/')
+          .slice(0, index + 1)
+          .join('/') +
+        '/'
+      )
     }
   },
   mounted: function () {
