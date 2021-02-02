@@ -1,5 +1,6 @@
 <template>
   <section class="container section">
+    <span @click="save">测试</span>
     <div>
       <span class="icon" title="主页" @click="getPaths('/')">
         <i class="fas fa-home"></i>
@@ -42,7 +43,7 @@
         <tr
           v-for="(item, index) in names"
           :key="index"
-          @click="item.type === 1 ? getPaths(curPath + item.name + '/') : {}"
+          @dblclick="item.type === 1 ? getPaths(curPath + item.name + '/') : {}"
         >
           <th>{{ index }}</th>
           <td>{{ item.name }}</td>
@@ -57,6 +58,8 @@
 
 <script>
 const JSFTP = require('jsftp')
+const { dialog } = require('electron').remote
+const fs = require('fs')
 console.log(JSFTP)
 export default {
   name: 'main-page',
@@ -124,6 +127,25 @@ export default {
           .join('/') +
         '/'
       )
+    },
+    // 下载文件
+    save: function () {
+      var options = {
+        title: '保存文件',
+        defaultPath: 'my_filename',
+        buttonLabel: '保存',
+        filters: [
+          { name: 'txt', extensions: ['txt'] },
+          { name: 'All Files', extensions: ['*'] }
+        ]
+      }
+
+      dialog.showSaveDialog(options, filename => {
+        console.log(filename)
+        if (filename) {
+          fs.writeFileSync(filename, 'hello world', 'utf-8')
+        }
+      })
     }
   },
   mounted: function () {
