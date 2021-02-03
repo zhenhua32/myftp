@@ -101,7 +101,7 @@
 </template>
 
 <script>
-const JSFTP = require('jsftp')
+const BasicFTP = require('basic-ftp')
 
 export default {
   name: 'login-page',
@@ -113,6 +113,7 @@ export default {
       password: '',
       save: false,
       ftp: null,
+      client: null,
 
       // 错误信息, '' 时不显示, null 时成功, 有值时失败
       error: '',
@@ -120,46 +121,56 @@ export default {
     }
   },
   methods: {
-    connect: function (event) {
+    // 登录 ftp 并跳转到新页面
+    connect: async function (event) {
       console.log('正在登陆')
 
-      this.ftp = new JSFTP({
-        host: this.host,
-        port: this.port,
-        user: this.user,
-        pass: this.password
-      })
+      this.client = new BasicFTP.Client()
+      try {
+        await this.client.access({
+          host: this.host,
+          port: this.port,
+          user: this.user,
+          password: this.password,
+          secure: false
+        })
+      } catch (err) {
+        this.error = err
+        this.process = false
+        return
+      }
 
       this.saveAccount()
       // 跳转到新页面
       this.$router.push({ path: 'main' })
     },
-    connectTest: function (event) {
+    connectTest: async function (event) {
       console.log('尝试登陆')
       this.clear()
       this.process = true
 
-      this.ftp = new JSFTP({
-        host: this.host,
-        port: this.port,
-        user: this.user,
-        pass: this.password
-      })
-      this.ftp.ls('/', (err, res) => {
-        if (err) {
-          console.log(err)
-          this.error = err.stack
-        } else {
-          console.log(res)
-          this.error = null
-        }
+      this.client = new BasicFTP.Client()
+      // 测试时用, 控制台输出更多信息
+      if (process.env.NODE_ENV === 'development') {
+        this.client.ftp.verbose = true
+      }
+
+      try {
+        await this.client.access({
+          host: this.host,
+          port: this.port,
+          user: this.user,
+          password: this.password,
+          secure: false
+        })
+        console.log(await this.client.list())
+      } catch (err) {
+        this.error = err
         this.process = false
-      })
-      // 捕捉错误
-      this.ftp.on('error', error => {
-        this.error = error.stack
-        this.process = false
-      })
+        return
+      }
+      this.error = null
+      this.process = false
 
       // 保存账号数据
       this.saveAccount()
@@ -182,7 +193,7 @@ export default {
         password: this.password
       })
       this.$store.dispatch('Account/saveFTP', {
-        ftp: this.ftp
+        client: this.client
       })
     }
   }
