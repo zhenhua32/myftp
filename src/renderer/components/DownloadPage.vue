@@ -44,10 +44,10 @@
             <th>{{ index }}</th>
             <td>{{ item.name }}</td>
             <td>{{ formatBytes(item.size) }}</td>
-            <td>{{ new Date(item.time) }}</td>
+            <td>{{}}</td>
             <td>
-              <button class="button">
-                暂停
+              <button class="button is-small" @click="saveFile(item)">
+                开始下载
               </button>
             </td>
           </tr>
@@ -58,10 +58,13 @@
 </template>
 
 <script>
+const fs = require('fs')
 const BasicFTP = require('basic-ftp')
+const { dialog } = require('electron').remote
 const { formatBytes } = require('../../tools/helper')
 
 console.log(BasicFTP)
+console.log(fs)
 
 export default {
   name: 'download-page',
@@ -80,21 +83,40 @@ export default {
       this.client = new BasicFTP.Client()
       try {
         await this.client.access({
-          host: this.host,
-          port: this.port,
-          user: this.user,
-          password: this.password,
+          host: this.$store.state.Account.host,
+          port: this.$store.state.Account.port,
+          user: this.$store.state.Account.user,
+          password: this.$store.state.Account.password,
           secure: false
         })
       } catch (err) {
-        this.error = err
-        this.process = false
+        console.log(err)
+        alert('连接 ftp 失败')
       }
     },
     clearItems: function () {
       this.$store.dispatch('DownloadList/clear', {})
       this.items = []
       alert('清空成功')
+    },
+    saveFile: function (item) {
+      let fileName = item.name
+      let ftpPath = item.path
+      // fileName 是保存的文件的名字, ftpPath 是文件在 ftp 上的路径
+      var options = {
+        title: '保存文件',
+        defaultPath: fileName,
+        buttonLabel: '保存',
+        filters: [{ name: 'All Files', extensions: ['*'] }]
+      }
+
+      dialog.showSaveDialog(options).then(res => {
+        console.log(res)
+        console.log(ftpPath)
+        if (!res.canceled) {
+          this.client.downloadTo(res.filePath, ftpPath)
+        }
+      })
     }
   },
   mounted: async function () {

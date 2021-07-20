@@ -206,6 +206,7 @@ export default {
         console.log(res.filePath)
         console.log(ftpPath)
         if (!res.canceled) {
+          // 直接写入内存中, 容易爆炸
           var buf = Buffer.from([])
           this.ftp.get(ftpPath, (err, socket) => {
             if (err) {
@@ -218,6 +219,7 @@ export default {
               if (err) {
                 console.error('There was an error retrieving the file.')
               } else {
+                // 直接同步写入文件
                 fs.writeFileSync(res.filePath, buf)
               }
             })
