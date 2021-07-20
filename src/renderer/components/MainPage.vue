@@ -25,6 +25,16 @@
             <!-- https://fontawesome.com/icons 去这边搜免费版的 icon, 注意使用时加 fa- 前缀 -->
             <i class="fas fa-sign-out-alt"></i>
           </span>
+          登录页面
+        </router-link>
+      </div>
+      <div class="column">
+        <router-link to="/download">
+          <span class="icon" title="下载">
+            <!-- https://fontawesome.com/icons 去这边搜免费版的 icon, 注意使用时加 fa- 前缀 -->
+            <i class="fas fa-download"></i>
+          </span>
+          下载列表
         </router-link>
       </div>
     </div>
@@ -87,10 +97,17 @@
             <td>
               <button
                 v-if="item.type === 0"
-                class="button"
+                class="button is-small"
                 @click="save(item.name, curPath + item.name)"
               >
-                下载
+                直接下载
+              </button>
+              <button
+                v-if="item.type === 0"
+                class="button is-small"
+                @click="save(item.name, curPath + item.name)"
+              >
+                加入列表
               </button>
             </td>
           </tr>
@@ -120,7 +137,9 @@ export default {
   computed: {
     filterNames: function () {
       let searchText = this.searchText.toLowerCase()
-      return this.names.filter(info => info.name.toLowerCase().includes(searchText))
+      return this.names.filter(info =>
+        info.name.toLowerCase().includes(searchText)
+      )
     }
   },
   methods: {

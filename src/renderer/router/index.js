@@ -16,6 +16,11 @@ export default new Router({
       component: require('@/components/MainPage').default
     },
     {
+      path: '/download',
+      name: 'download-page',
+      component: require('@/components/DownloadPage.vue').default
+    },
+    {
       path: '/landing',
       name: 'landing-page',
       component: require('@/components/LandingPage').default
