@@ -1,68 +1,90 @@
 <template>
   <section class="container section">
-    <div>
-      <span class="icon" title="主页" @click="getPaths('/')">
-        <i class="fas fa-home"></i>
-      </span>
-      当前路径: <a title="/" @click="getPaths('/')">/</a>
-      <template v-if="curPath !== '/'">
-        <span
-          v-for="(item, index) in curPath.slice(1, -1).split('/')"
-          :key="index"
-        >
-          <a :title="buildPath(index)" @click="getPaths(buildPath(index))">{{
-            item
-          }}</a>
-          /
+    <!-- 定义操作栏 -->
+    <div class="columns">
+      <div class="column is-8">
+        <span class="icon" title="主页" @click="getPaths('/')">
+          <i class="fas fa-home"></i>
         </span>
-      </template>
+        当前路径: <a title="/" @click="getPaths('/')">/</a>
+        <template v-if="curPath !== '/'">
+          <span
+            v-for="(item, index) in curPath.slice(1, -1).split('/')"
+            :key="index"
+          >
+            <a :title="buildPath(index)" @click="getPaths(buildPath(index))">{{
+              item
+            }}</a>
+            /
+          </span>
+        </template>
+      </div>
+      <div class="column">
+        <router-link to="/">
+          <span class="icon" title="退出">
+            <!-- https://fontawesome.com/icons 去这边搜免费版的 icon, 注意使用时加 fa- 前缀 -->
+            <i class="fas fa-sign-out-alt"></i>
+          </span>
+        </router-link>
+      </div>
     </div>
-    <table class="table is-striped is-hoverable">
-      <thead>
-        <tr>
-          <th>index</th>
-          <th>文件名</th>
-          <th>时间</th>
-          <th>大小</th>
-          <th>type</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tfoot>
-        <tr>
-          <th>index</th>
-          <th>文件名</th>
-          <th>时间</th>
-          <th>大小</th>
-          <th>type</th>
-          <th>操作</th>
-        </tr>
-      </tfoot>
 
-      <tbody>
-        <!-- TODO: 需要研究下 FTP 协议, 才能知道每个字段的意思 -->
-        <tr
-          v-for="(item, index) in names"
-          :key="index"
-          @dblclick="item.type === 1 ? getPaths(curPath + item.name + '/') : {}"
-        >
-          <th>{{ index }}</th>
-          <td>{{ item.name }}</td>
-          <td>{{ new Date(item.time) }}</td>
-          <td>{{ formatBytes(item.size) }}</td>
-          <td>{{ item.type === 1 ? '目录' : '文件' }}</td>
-          <td>
-            <button
-              v-if="item.type === 0"
-              class="button"
-              @click="save(item.name, curPath + item.name)"
-            >
-              下载
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <!-- 定义文件列表展示区 -->
+    <div class="table-container">
+      <table class="table is-striped is-hoverable is-fullwidth">
+        <thead>
+          <tr>
+            <th>index</th>
+            <th>文件名</th>
+            <th>时间</th>
+            <th>大小</th>
+            <th>type</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tfoot>
+          <tr>
+            <th>index</th>
+            <th>文件名</th>
+            <th>时间</th>
+            <th>大小</th>
+            <th>type</th>
+            <th>操作</th>
+          </tr>
+        </tfoot>
+
+        <tbody>
+          <!-- TODO: 需要研究下 FTP 协议, 才能知道每个字段的意思 -->
+          <tr
+            v-for="(item, index) in names"
+            :key="index"
+            @dblclick="
+              item.type === 1 ? getPaths(curPath + item.name + '/') : {}
+            "
+          >
+            <th>{{ index }}</th>
+            <td v-if="item.type === 1">
+              <a>{{ item.name }}</a>
+            </td>
+            <td v-else>
+              {{ item.name }}
+            </td>
+            <td>{{ new Date(item.time) }}</td>
+            <td>{{ formatBytes(item.size) }}</td>
+            <td>{{ item.type === 1 ? '目录' : '文件' }}</td>
+            <td>
+              <button
+                v-if="item.type === 0"
+                class="button"
+                @click="save(item.name, curPath + item.name)"
+              >
+                下载
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 </template>
 
@@ -87,6 +109,7 @@ export default {
       this.ftp.ls(filePath, (err, res) => {
         if (err) {
           console.log(err)
+          alert(err.text)
         } else {
           console.log(res)
           console.log(filePath)

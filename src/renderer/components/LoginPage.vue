@@ -1,6 +1,6 @@
 <template>
   <section class="container section">
-    <h1 class="title">登陆 FTP 服务器</h1>
+    <h1 class="title">登录 FTP 服务器</h1>
     <main>
       <div>
         <div class="field">
@@ -62,7 +62,7 @@
 
         <div class="field is-grouped">
           <div class="control">
-            <button @click="connect" class="button is-link">登陆</button>
+            <button @click="connect" class="button is-link">登录</button>
           </div>
           <div class="control">
             <button @click="connectTest" class="button is-link is-light">
@@ -123,7 +123,7 @@ export default {
   methods: {
     // 登录 ftp 并跳转到新页面
     connect: async function (event) {
-      console.log('正在登陆')
+      console.log('正在登录')
 
       this.client = new BasicFTP.Client()
       try {
@@ -145,7 +145,7 @@ export default {
       this.$router.push({ path: 'main' })
     },
     connectTest: async function (event) {
-      console.log('尝试登陆')
+      console.log('尝试登录')
       this.clear()
       this.process = true
 
@@ -192,9 +192,9 @@ export default {
         user: this.user,
         password: this.password
       })
-      this.$store.dispatch('Account/saveFTP', {
-        client: this.client
-      })
+      // this.$store.dispatch('Account/saveFTP', {
+      //   client: this.client
+      // })
     }
   }
 }

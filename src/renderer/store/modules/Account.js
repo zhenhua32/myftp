@@ -1,6 +1,6 @@
 // 定义需要存储的数据
 const state = {
-  host: '192.168.2.102',
+  host: '192.168.0.105',
   port: 2121,
   user: 'hello',
   password: '1234',
