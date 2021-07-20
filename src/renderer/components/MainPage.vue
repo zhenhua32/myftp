@@ -98,14 +98,14 @@
               <button
                 v-if="item.type === 0"
                 class="button is-small"
-                @click="save(item.name, curPath + item.name)"
+                @click="saveFile(item.name, curPath + item.name)"
               >
                 直接下载
               </button>
               <button
                 v-if="item.type === 0"
                 class="button is-small"
-                @click="save(item.name, curPath + item.name)"
+                @click="addDownloadItem(item.name, curPath + item.name, item.size)"
               >
                 加入列表
               </button>
@@ -192,7 +192,7 @@ export default {
       )
     },
     // 下载文件
-    save: function (fileName, ftpPath) {
+    saveFile: function (fileName, ftpPath) {
       // fileName 是保存的文件的名字, ftpPath 是文件在 ftp 上的路径
       var options = {
         title: '保存文件',
@@ -223,17 +223,21 @@ export default {
             })
             socket.resume()
           })
-          // TODO: 研究为什么不生效, bug 太多, 弃用
-          // this.ftp.get(ftpPath, res.filePath, err => {
-          //   console.log('hello')
-          //   if (err) {
-          //     console.log(err)
-          //     return console.error('无法保存文件')
-          //   }
-          //   console.log('文件保存成功')
-          // })
         }
       })
+    },
+    // 添加到下载列表
+    addDownloadItem: function (fileName, ftpPath, fileSize) {
+      var item = {
+        name: fileName,
+        path: ftpPath,
+        size: fileSize,
+        status: null
+      }
+      this.$store.dispatch('DownloadList/addItem', {
+        item: item
+      })
+      alert('添加成功')
     }
   },
   mounted: function () {

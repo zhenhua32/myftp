@@ -3,6 +3,11 @@
     <!-- 定义操作栏 -->
     <div class="columns">
       <div class="column">
+        <button class="button is-small" @click="clearItems">
+          清空列表
+        </button>
+      </div>
+      <div class="column">
         <router-link to="/main">
           <span class="icon" title="主页" @click="getPaths('/')">
             <i class="fas fa-home"></i>
@@ -35,7 +40,7 @@
         </tfoot>
 
         <tbody>
-          <tr v-for="(item, index) in paths" :key="index">
+          <tr v-for="(item, index) in items" :key="index">
             <th>{{ index }}</th>
             <td>{{ item.name }}</td>
             <td>{{ formatBytes(item.size) }}</td>
@@ -53,37 +58,53 @@
 </template>
 
 <script>
-const JSFTP = require('jsftp')
+const BasicFTP = require('basic-ftp')
 const { formatBytes } = require('../../tools/helper')
+
+console.log(BasicFTP)
 
 export default {
   name: 'download-page',
   data () {
     return {
-      ftp: null,
-      paths: []
+      client: null,
+      items: []
     }
   },
   methods: {
     formatBytes: formatBytes,
     // 连接 ftp 服务器
-    connect: function () {
-      this.ftp = new JSFTP({
-        host: this.$store.state.Account.host,
-        port: this.$store.state.Account.port,
-        user: this.$store.state.Account.user,
-        pass: this.$store.state.Account.password
-      })
+    connect: async function (event) {
+      console.log('正在登录')
+
+      this.client = new BasicFTP.Client()
+      try {
+        await this.client.access({
+          host: this.host,
+          port: this.port,
+          user: this.user,
+          password: this.password,
+          secure: false
+        })
+      } catch (err) {
+        this.error = err
+        this.process = false
+      }
+    },
+    clearItems: function () {
+      this.$store.dispatch('DownloadList/clear', {})
+      this.items = []
+      alert('清空成功')
     }
   },
-  mounted: function () {
+  mounted: async function () {
     // 只能重新连接
-    this.connect()
-    if (!this.ftp) {
+    await this.connect()
+    if (!this.client) {
       console.log('无效的 ftp, 回到首页')
       this.$router.replace({ path: '/' })
     }
-    this.getPaths('/')
+    this.items = this.$store.state.DownloadList.data
   }
 }
 </script>
