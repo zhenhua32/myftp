@@ -29,6 +29,18 @@
       </div>
     </div>
 
+    <!-- 搜索框 -->
+    <div class="columns">
+      <div class="column">
+        <input
+          v-model="searchText"
+          class="input"
+          type="text"
+          placeholder="搜索当前目录"
+        />
+      </div>
+    </div>
+
     <!-- 定义文件列表展示区 -->
     <div class="table-container">
       <table class="table is-striped is-hoverable is-fullwidth">
@@ -56,7 +68,7 @@
         <tbody>
           <!-- TODO: 需要研究下 FTP 协议, 才能知道每个字段的意思 -->
           <tr
-            v-for="(item, index) in names"
+            v-for="(item, index) in filterNames"
             :key="index"
             @dblclick="
               item.type === 1 ? getPaths(curPath + item.name + '/') : {}
@@ -92,6 +104,7 @@
 const JSFTP = require('jsftp')
 const { dialog } = require('electron').remote
 const fs = require('fs')
+const { formatBytes } = require('../../tools/helper')
 console.log(JSFTP)
 console.log(fs)
 export default {
@@ -100,7 +113,14 @@ export default {
     return {
       ftp: null,
       names: [],
-      curPath: '/'
+      curPath: '/',
+      searchText: ''
+    }
+  },
+  computed: {
+    filterNames: function () {
+      let searchText = this.searchText.toLowerCase()
+      return this.names.filter(info => info.name.toLowerCase().includes(searchText))
     }
   },
   methods: {
@@ -139,17 +159,7 @@ export default {
       })
     },
     // 转换字节
-    formatBytes: function formatBytes (bytes, decimals = 2) {
-      if (bytes === 0) return '0 Bytes'
-
-      const k = 1024
-      const dm = decimals < 0 ? 0 : decimals
-      const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-
-      const i = Math.floor(Math.log(bytes) / Math.log(k))
-
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
-    },
+    formatBytes: formatBytes,
     // 构建部分路径
     buildPath: function (index) {
       return (
