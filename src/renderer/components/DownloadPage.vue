@@ -25,7 +25,7 @@
             <th>index</th>
             <th>文件名</th>
             <th>大小</th>
-            <th>预计时间</th>
+            <th>进度</th>
             <th>操作</th>
           </tr>
         </thead>
@@ -34,7 +34,7 @@
             <th>index</th>
             <th>文件名</th>
             <th>大小</th>
-            <th>预计时间</th>
+            <th style="width:40%">进度</th>
             <th>操作</th>
           </tr>
         </tfoot>
@@ -44,11 +44,32 @@
             <th>{{ index }}</th>
             <td>{{ item.name }}</td>
             <td>{{ formatBytes(item.size) }}</td>
-            <td>{{}}</td>
             <td>
-              <button class="button is-small" @click="saveFile(item)">
+              <progress
+                class="progress"
+                :value="item.process"
+                max="100"
+              ></progress>
+            </td>
+            <td>
+              <button
+                v-if="item.status == 'done'"
+                class="button is-small"
+                @click="saveFile(item, index)"
+              >
+                重新下载
+              </button>
+              <button
+                v-else
+                class="button is-small is-primary"
+                @click="saveFile(item, index)"
+              >
                 开始下载
               </button>
+
+              <span class="icon" title="移除" @click="removeItem(index)">
+                <i class="fas fa-trash-alt"></i>
+              </span>
             </td>
           </tr>
         </tbody>
@@ -99,7 +120,7 @@ export default {
       this.items = []
       alert('清空成功')
     },
-    saveFile: function (item) {
+    saveFile: function (item, index) {
       let fileName = item.name
       let ftpPath = item.path
       // fileName 是保存的文件的名字, ftpPath 是文件在 ftp 上的路径
@@ -110,12 +131,37 @@ export default {
         filters: [{ name: 'All Files', extensions: ['*'] }]
       }
 
+      // 设置进度条
+      this.client.trackProgress(info => {
+        console.log('File', info.name)
+        console.log('Type', info.type)
+        console.log('Transferred', info.bytes)
+        console.log('Transferred Overall', info.bytesOverall)
+        this.$store.dispatch('DownloadList/updateItemValue', {
+          idx: index,
+          key: 'process',
+          value: ((info.bytes / item.size) * 100).toFixed(0)
+        })
+      })
+
       dialog.showSaveDialog(options).then(res => {
         console.log(res)
         console.log(ftpPath)
         if (!res.canceled) {
           this.client.downloadTo(res.filePath, ftpPath)
+
+          // 更新状态
+          this.$store.dispatch('DownloadList/updateItemValue', {
+            idx: index,
+            key: 'status',
+            value: 'done'
+          })
         }
+      })
+    },
+    removeItem: function (index) {
+      this.$store.dispatch('DownloadList/removeItem', {
+        idx: index
       })
     }
   },

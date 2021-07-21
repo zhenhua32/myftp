@@ -9,10 +9,17 @@ const mutations = {
     state.data.push(payload.item)
   },
   REMOVE_ITEM (state, payload) {
-    state.data.pop()
+    let idx = payload.idx
+    state.data.splice(idx, 1)
   },
   CLEAR (state, payload) {
     state.data = []
+  },
+  UPDATE_ITEM_VALUE (state, payload) {
+    let idx = payload.idx
+    let key = payload.key
+    let value = payload.value
+    state.data[idx][key] = value
   }
 }
 
@@ -26,6 +33,9 @@ const actions = {
   },
   clear ({ commit }, payload) {
     commit('CLEAR', payload)
+  },
+  updateItemValue ({ commit }, payload) {
+    commit('UPDATE_ITEM_VALUE', payload)
   }
 }
 

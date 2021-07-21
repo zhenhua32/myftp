@@ -97,7 +97,7 @@
             <td>
               <button
                 v-if="item.type === 0"
-                class="button is-small"
+                class="button is-small is-primary"
                 @click="saveFile(item.name, curPath + item.name)"
               >
                 直接下载
@@ -105,7 +105,9 @@
               <button
                 v-if="item.type === 0"
                 class="button is-small"
-                @click="addDownloadItem(item.name, curPath + item.name, item.size)"
+                @click="
+                  addDownloadItem(item.name, curPath + item.name, item.size)
+                "
               >
                 加入列表
               </button>
@@ -234,7 +236,8 @@ export default {
         name: fileName,
         path: ftpPath,
         size: fileSize,
-        status: null
+        status: null,
+        process: 0
       }
       this.$store.dispatch('DownloadList/addItem', {
         item: item
